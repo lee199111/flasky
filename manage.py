@@ -27,6 +27,10 @@ def init():
         db.session.add(User('user{}'.format(i), role))
     db.session.commit()
 
+@manager.command
+def run():
+    app.run(debug=True)
+
 
 if __name__ == '__main__':
     manager.run()
