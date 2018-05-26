@@ -28,6 +28,11 @@ def init():
     db.session.commit()
 
 @manager.command
+def rebuildb():
+    db.drop_all()
+    db.create_all()
+
+@manager.command
 def run():
     app.run(debug=True)
 
