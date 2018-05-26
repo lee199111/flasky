@@ -1,4 +1,5 @@
 import os
+from threading import Thread
 
 from flask import Flask, render_template, session, redirect, url_for
 from flask_bootstrap import Bootstrap
@@ -37,12 +38,28 @@ migrate = Migrate(app, db)
 mail = Mail(app)
 
 
+# sync email
+# def send_email(to, subject, template, **kwargs):
+#     msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
+#                   sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
+#     msg.body = render_template(template + '.txt', **kwargs)
+#     msg.html = render_template(template + '.html', **kwargs)
+#     mail.send(msg)
+
+# async email
+def send_async_email(app: Flask, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
 def send_email(to, subject, template, **kwargs):
     msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
-    mail.send(msg)
+    thd = Thread(target=send_async_email, args=[app, msg])
+    thd.start()
+    # return thd
 
 
 class Role(db.Model):
@@ -53,6 +70,7 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<Role %r>' % self.name
+
     def __init__(self, name):
         self.name = name
 
@@ -67,7 +85,7 @@ class User(db.Model):
         return '<User %r>' % self.username
 
     def __init__(self, username, role=None):
-        self.name = username
+        self.username = username
         self.role = role
 
 
@@ -98,6 +116,7 @@ def index():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
             user = User(username=form.name.data)
+            print(user)
             db.session.add(user)
             db.session.commit()
             session['known'] = False
