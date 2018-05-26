@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from app.model import Role
+from app.view import *
 from flask_script import Manager
-from hello import *
 
 manager = Manager(app)
+"""用于启动程序、初始化db等任务"""
 
 
 # manager.add_command("shell", Shell(make_context=make_shell_context))
@@ -27,10 +29,12 @@ def init():
         db.session.add(User('user{}'.format(i), role))
     db.session.commit()
 
+
 @manager.command
 def rebuildb():
     db.drop_all()
     db.create_all()
+
 
 @manager.command
 def run():
