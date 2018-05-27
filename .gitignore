@@ -2,7 +2,8 @@
 .idea/*.iml
 .idea/*.xml
 .idea\inspectionProfiles\*.xml
-.idea\*
+.idea/
+.gitignore
 # C extensions
 *.so
 
