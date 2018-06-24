@@ -28,3 +28,21 @@ class User(db.Model):
     def __init__(self, username, role=None):
         self.username = username
         self.role = role
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    def hash_passwd(self, passwd):
+        h = hashlib.md5()
+        salt = "01234567"
+        passwd += salt
+        h.update(passwd.encode('utf-8'))
+        return h.hexdigest()
+
+    @password.setter
+    def password(self, password: str):
+        self.password_hash = self.hash_passwd(password)
+
+    def verify_password(self, password):
+        return self.password_hash == self.hash_passwd(password)
